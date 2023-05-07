@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { addContact } from 'redux/contactsSlice';
-import { nanoid } from 'nanoid';
+import { useAddContactMutation } from 'redux/contactsSlice';
 import { FormBook } from './Form.styled';
 
 export const Form = () => {
-  const dispatch = useDispatch();
+  const [addContact] = useAddContactMutation();
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
@@ -29,9 +27,9 @@ export const Form = () => {
   const handleSubmit = e => {
     e.preventDefault();
 
-    const newContact = { id: nanoid(), name, number };
+    const newContact = { name, phone: number };
 
-    dispatch(addContact(newContact));
+    addContact(newContact);
 
     resetForm();
   };

@@ -1,50 +1,52 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { createSlice } from '@reduxjs/toolkit';
-import { persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
 
-export const contactsSlice = createSlice({
-  name: 'contacts',
+export const contactsApi = createApi({
+  reducerPath: 'contactsApi',
+  baseQuery: fetchBaseQuery({
+    baseUrl: 'https://6456ac5c5f9a4f236149c60e.mockapi.io/',
+  }),
+  tagTypes: ['Contact'],
+  endpoints: builder => ({
+    getContacts: builder.query({
+      query: () => 'contacts/',
+      providesTags: ['Contact'],
+    }),
+    addContact: builder.mutation({
+      query: values => ({
+        url: 'contacts/',
+        method: 'POST',
+        body: values,
+      }),
+      providesTags: ['Contact'],
+    }),
+    deleteContact: builder.mutation({
+      query: id => ({
+        url: `contacts/${id}`,
+        method: 'DELETE',
+      }),
+      providesTags: ['Contact'],
+    }),
+  }),
+});
+
+export const {
+  useGetContactsQuery,
+  useAddContactMutation,
+  useDeleteContactMutation,
+} = contactsApi;
+
+export const filterSlice = createSlice({
+  name: 'filter',
   initialState: {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
     filter: '',
   },
   reducers: {
-    addContact: (state, action) => {
-      if (
-        state.contacts.some(contact => contact.name === action.payload.name)
-      ) {
-        return alert(`${action.payload.name} is already in contacts`);
-      } else {
-        state.contacts.push(action.payload);
-      }
-    },
-    removeContact: (state, action) => {
-      const index = state.contacts.findIndex(
-        contact => contact.id === action.payload
-      );
-      state.contacts.splice(index, 1);
-    },
     filterContact: (state, action) => {
       state.filter = action.payload.toLowerCase();
     },
   },
 });
 
-const persistConfig = {
-  key: 'contacts',
-  storage,
-  whitelist: 'contacts',
-};
-
-export const contactsReducer = persistReducer(
-  persistConfig,
-  contactsSlice.reducer
-);
-
-export const { addContact, removeContact, filterContact } =
-  contactsSlice.actions;
+export const { filterContact } = filterSlice.actions;
+export const filterReducer = filterSlice.reducer;
